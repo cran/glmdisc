@@ -6,7 +6,7 @@ NULL
 #' This function discretizes a user-provided test dataset given a discretization scheme provided by an S4 "glmdisc" object.
 #' It then applies the learnt logistic regression model and outputs its prediction (see \code{\link{predict.glm}}).
 #' @exportMethod predict
-#' @keywords test, discretization, predict, prediction
+#' @concept test discretization predict prediction
 #' @docType methods
 #' @name predict
 #' @aliases predict
@@ -34,7 +34,7 @@ methods::setGeneric("predict")
 #' predict(sem_disc, data.frame(x))
 predict.glmdisc <- function(object, predictors) {
      data_disc = data.frame(discretize_link(object@best.disc[[2]],predictors,object@parameters$m_start))
-     colnames(data_disc) = colnames(predictors)
+     #colnames(data_disc) = colnames(predictors)
      
      # Features with only one level are out of the model
      #data_e = Filter(function(x)(length(unique(x))>1),data_disc)
@@ -46,19 +46,16 @@ predict.glmdisc <- function(object, predictors) {
      # colnames(new_df) = object@parameters$encoder$facVars[!object@parameters$encoder$facVars %in% colnames(data_e)]
      # data_e <- cbind(data_e,new_df)
      
-     
      # Levels not in the training set but in the test set are removed
      for (var in object@parameters$encoder$facVars) {
           if (length(levels(data_e[,var])[!(levels(data_e[,var]) %in% unlist(unname(object@parameters$encoder$lvls[var])))]) > 0) {
                data_e <- data_e[-which(data_e[,var] == levels(data_e[,var])[!(levels(data_e[,var]) %in% unlist(unname(object@parameters$encoder$lvls[var])))]),]
-               print(paste("levels", paste(levels(data_e[,var])[(!levels(data_e[,var]) %in% unlist(unname(object@parameters$encoder$lvls[var])))], collapse = ", "), "of feature", var, "were removed from test set."))
+               warning(paste("levels", paste(levels(data_e[,var])[(!levels(data_e[,var]) %in% unlist(unname(object@parameters$encoder$lvls[var])))], collapse = ", "), "of feature", var, "were removed from test set."))
           }
      }
 
      data = predict(object = object@parameters$encoder, newdata = data_e)
      
-     #print(ncol(data))
-     #print(length(object@best.disc[[1]]$coefficients))
      predictlogisticRegression(data,object@best.disc[[1]]$coefficients)
 }
 

@@ -1,8 +1,8 @@
 Package: glmdisc
 Type: Package
 Title: Discretization and Grouping for Logistic Regression
-Version: 0.1
-Date: 2019-04-01
+Version: 0.2
+Date: 2019-08-28
 Authors@R: c(person("Adrien", "Ehrhardt", email = "adrien.ehrhardt@inria.fr",
                   role = c("aut", "cre")),
                   person("Vincent", "Vandewalle", email = "vincent.vandewalle@inria.fr",
@@ -22,7 +22,7 @@ LinkingTo: Rcpp, RcppEigen, RcppNumerical
 URL: https://adimajo.github.io
 BugReports: https://github.com/adimajo/glmdisc/issues
 RoxygenNote: 6.1.1
-Suggests: knitr, rmarkdown
+Suggests: knitr, rmarkdown, testthat, covr
 VignetteBuilder: knitr
 Collate: 'RcppExports.R' 'allClasses.R' 'cut.dataset.R'
         'discretize.link.R' 'generic_cutpoints.R'
@@ -30,10 +30,10 @@ Collate: 'RcppExports.R' 'allClasses.R' 'cut.dataset.R'
         'method_discretize.R' 'method_plot.R' 'method_predict.R'
         'methods_disc.R' 'normalizedGini.R' 'semDiscretization.R'
 NeedsCompilation: yes
-Packaged: 2019-04-01 20:18:50 UTC; adrien
+Packaged: 2019-09-16 07:57:23 UTC; adrien
 Author: Adrien Ehrhardt [aut, cre],
   Vincent Vandewalle [aut],
   Christophe Biernacki [ctb],
   Philippe Heinrich [ctb]
 Repository: CRAN
-Date/Publication: 2019-04-04 12:10:03 UTC
+Date/Publication: 2019-09-16 13:50:03 UTC
