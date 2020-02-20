@@ -1,8 +1,8 @@
 Package: glmdisc
 Type: Package
 Title: Discretization and Grouping for Logistic Regression
-Version: 0.3
-Date: 2019-12-14
+Version: 0.4
+Date: 2020-02-20
 Authors@R: c(person("Adrien", "Ehrhardt", email = "adrien.ehrhardt@centraliens-lille.org",
                   role = c("aut", "cre")),
                   person("Vincent", "Vandewalle", email = "vincent.vandewalle@inria.fr",
@@ -30,10 +30,10 @@ Collate: 'RcppExports.R' 'allClasses.R' 'cut.dataset.R'
         'method_discretize.R' 'method_plot.R' 'method_predict.R'
         'methods_disc.R' 'normalizedGini.R' 'semDiscretization.R'
 NeedsCompilation: yes
-Packaged: 2019-12-16 09:41:05 UTC; EHRHARA
+Packaged: 2020-02-20 18:11:33 UTC; adimajo
 Author: Adrien Ehrhardt [aut, cre],
   Vincent Vandewalle [aut],
   Christophe Biernacki [ctb],
   Philippe Heinrich [ctb]
 Repository: CRAN
-Date/Publication: 2019-12-16 13:50:06 UTC
+Date/Publication: 2020-02-20 19:00:02 UTC
