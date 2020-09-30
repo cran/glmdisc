@@ -1,8 +1,8 @@
 Package: glmdisc
 Type: Package
 Title: Discretization and Grouping for Logistic Regression
-Version: 0.5
-Date: 2020-02-20
+Version: 0.6
+Date: 2020-09-30
 Authors@R: c(person("Adrien", "Ehrhardt", email = "adrien.ehrhardt@centraliens-lille.org",
                   role = c("aut", "cre")),
                   person("Vincent", "Vandewalle", email = "vincent.vandewalle@inria.fr",
@@ -16,24 +16,25 @@ Description: A Stochastic-Expectation-Maximization (SEM) algorithm (Celeux et al
 License: GPL (>= 2)
 Encoding: UTF-8
 LazyData: true
-Imports: caret (>= 6.0-82), gam, nnet, RcppNumerical, methods, MASS,
-        graphics, Rcpp (>= 0.12.13)
+Imports: caret (>= 6.0-82), dplyr, magrittr, gam, nnet, RcppNumerical,
+        methods, MASS, graphics, Rcpp (>= 0.12.13)
 LinkingTo: Rcpp, RcppEigen, RcppNumerical
 URL: https://adimajo.github.io
 BugReports: https://github.com/adimajo/glmdisc/issues
-RoxygenNote: 7.0.2
-Suggests: knitr, rmarkdown, testthat, covr
+RoxygenNote: 7.1.1
+Suggests: knitr, rmarkdown, testthat (>= 2.1.0), covr
 VignetteBuilder: knitr
 Collate: 'RcppExports.R' 'allClasses.R' 'cut.dataset.R'
         'discretize.link.R' 'generic_cutpoints.R'
-        'generic_discretize.R' 'glmdisc.R' 'method_cutpoints.R'
-        'method_discretize.R' 'method_plot.R' 'method_predict.R'
-        'methods_disc.R' 'normalizedGini.R' 'semDiscretization.R'
+        'generic_discretize.R' 'glmdisc.R' 'initialization.R'
+        'method_cutpoints.R' 'method_discretize.R' 'method_plot.R'
+        'method_predict.R' 'methods_disc.R' 'normalizedGini.R'
+        'semDiscretization.R'
 NeedsCompilation: yes
-Packaged: 2020-03-18 07:59:28 UTC; adimajo
+Packaged: 2020-09-30 17:05:22 UTC; adimajo
 Author: Adrien Ehrhardt [aut, cre],
   Vincent Vandewalle [aut],
   Christophe Biernacki [ctb],
   Philippe Heinrich [ctb]
 Repository: CRAN
-Date/Publication: 2020-03-22 11:30:02 UTC
+Date/Publication: 2020-09-30 21:10:02 UTC
