@@ -21,7 +21,7 @@ knitr::opts_chunk$set(
 
 # Context
 
-This research has been financed by Crédit Agricole Consumer Finance (CA CF), subsidiary of the Crédit Agricole Group which provides all kinds of banking and insurance services. CA CF specializes in consumer loans. It is a joint work at [Inria Nord-Europe](https://www.inria.fr/en/centre-inria-lille-nord-europe) between Adrien Ehrhardt (CA CF, Inria), Christophe Biernacki (Inria, Lille University), Vincent Vandewalle (Inria, Lille University) and Philippe Heinrich (Lille University).
+This research has been financed by Crédit Agricole Consumer Finance (CA CF), subsidiary of the Crédit Agricole Group which provides all kinds of banking and insurance services. CA CF specializes in consumer loans. It is a joint work at [Inria Nord-Europe](https://www.inria.fr/en/inria-centre-university-lille) between Adrien Ehrhardt (CA CF, Inria), Christophe Biernacki (Inria, Lille University), Vincent Vandewalle (Inria, Lille University) and Philippe Heinrich (Lille University).
 
 In order to accept / reject loan applications more efficiently (both quicker and to select better applicants), most financial institutions resort to Credit Scoring: given the applicant's characteristics he/she is given a Credit Score, which has been statistically designed using previously accepted applicants, and which partly decides whether the financial institution will grant the loan or not.
 
@@ -32,7 +32,7 @@ The current methodology for building a Credit Score in most financial institutio
 In practice, the statistical modeler has historical data about each customer's characteristics. For obvious reasons, only data available at the time of inquiry must be used to build a future application scorecard. Those data often take the form of a well-structured table with one line per client alongside their performance (did they pay back their loan or not?) as can be seen in the following table:
 
 ```{r, echo=FALSE, results='asis'}
-knitr::kable(data.frame(Job=c("Craftsman","Technician","Executive","Office employee"),Habitation = c("Owner","Renter","Starter","By family"),Time_in_job = c(10,20,5,2), Children = c(0,1,2,3), Family_status=  c("Divorced","Widower","Single","Married"),Default = c("No","No","Yes","No")))
+knitr::kable(data.frame(Job = c("Craftsman", "Technician", "Executive", "Office employee"), Habitation = c("Owner", "Renter", "Starter", "By family"), Time_in_job = c(10, 20, 5, 2), Children = c(0, 1, 2, 3), Family_status = c("Divorced", "Widower", "Single", "Married"), Default = c("No", "No", "Yes", "No")))
 ```
 
 ## Notations
@@ -72,16 +72,16 @@ When provided with continuous features, the logistic regression model assumes li
 For example, we can simulate a logistic model with an arbitrary power of $X$ and then try to fit a linear logistic model:
 
 ```{r, echo=TRUE, results='asis'}
-x = matrix(runif(1000), nrow = 1000, ncol = 1)
-p = 1/(1+exp(-3*x^5))
-y = rbinom(1000,1,p)
-modele_lin <- glm(y ~ x, family = binomial(link="logit"))
-pred_lin <- predict(modele_lin,as.data.frame(x),type="response")
-pred_lin_logit <- predict(modele_lin,as.data.frame(x))
+x <- matrix(runif(1000), nrow = 1000, ncol = 1)
+p <- 1 / (1 + exp(-3 * x^5))
+y <- rbinom(1000, 1, p)
+modele_lin <- glm(y ~ x, family = binomial(link = "logit"))
+pred_lin <- predict(modele_lin, as.data.frame(x), type = "response")
+pred_lin_logit <- predict(modele_lin, as.data.frame(x))
 ```
 
 ```{r, echo=FALSE}
-knitr::kable(head(data.frame(True_prob = p,Pred_lin = pred_lin)))
+knitr::kable(head(data.frame(True_prob = p, Pred_lin = pred_lin)))
 ```
 
 Of course, providing the `glm` function with a `formula` object containing $X^5$ would solve the problem. This can't be done in practice for two reasons: first, it is too time-consuming to examine all features and candidate polynomials; second, we lose the interpretability of the logistic decision function which was of primary interest.
@@ -89,20 +89,17 @@ Of course, providing the `glm` function with a `formula` object containing $X^5$
 Consequently, we wish to discretize the input variable $X$ into a categorical feature which will "minimize" the error with respect to the "true" underlying relation:
 
 ```{r, echo=TRUE, results='asis'}
-x_disc <- factor(cut(x,c(-Inf,0.5,0.7,0.8,0.9,+Inf)),labels = c(1,2,3,4,5))
-modele_disc <- glm(y ~ x_disc, family = binomial(link="logit"))
-pred_disc <- predict(modele_disc,as.data.frame(x_disc),type="response")
-pred_disc_logit <- predict(modele_disc,as.data.frame(x_disc))
-
+x_disc <- factor(cut(x, c(-Inf, 0.5, 0.7, 0.8, 0.9, +Inf)), labels = c(1, 2, 3, 4, 5))
+modele_disc <- glm(y ~ x_disc, family = binomial(link = "logit"))
+pred_disc <- predict(modele_disc, as.data.frame(x_disc), type = "response")
+pred_disc_logit <- predict(modele_disc, as.data.frame(x_disc))
 ```
 
 ```{r, echo=FALSE}
-
-knitr::kable(head(data.frame(True_prob = p,Pred_lin = pred_lin,Pred_disc = pred_disc)))
-plot(x,3*x^5,main = "Estimated logit transform of p(Y|X)", ylab = "p(Y|X) under different models")
-lines(x,pred_lin_logit,type="p",col="red")
-lines(x,pred_disc_logit,type="p",col="blue")
-
+knitr::kable(head(data.frame(True_prob = p, Pred_lin = pred_lin, Pred_disc = pred_disc)))
+plot(x, 3 * x^5, main = "Estimated logit transform of p(Y|X)", ylab = "p(Y|X) under different models")
+lines(x, pred_lin_logit, type = "p", col = "red")
+lines(x, pred_disc_logit, type = "p", col = "blue")
 ```
 
 ### Too many values per categorical feature
@@ -110,7 +107,7 @@ lines(x,pred_disc_logit,type="p",col="blue")
 When provided with categorical features, the logistic regression model fits a coefficient for all its values (except one which is taken as a reference). A common problem arises when there are too many values as each value will be taken by a small number of observations $x_{i,j}$ which makes the estimation of a logistic regression coefficient unstable:
 
 ```{r, echo=TRUE, results='asis'}
-x_disc_bad_idea <- factor(cut(x,c(-Inf,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,+Inf)),labels = c(1,2,3,4,5,6,7,8,9,10))
+x_disc_bad_idea <- factor(cut(x, c(-Inf, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, +Inf)), labels = c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10))
 ```
 
 If we divide the training set in 10 and estimate the variance of each coefficient, we get:
@@ -119,32 +116,32 @@ If we divide the training set in 10 and estimate the variance of each coefficien
 liste_coef <- list()
 
 for (k in 1:10) {
-     x_part <- factor(x_disc_bad_idea[((k-1)*nrow(x)/10 +1) : (k/10*nrow(x))])
-     y_part <- y[((k-1)*length(y)/10 +1) : (k/10*length(y))]
-     modele_part <- glm(y_part ~ x_part, family=binomial(link = "logit"))
-     liste_coef[[k]] <- (modele_part$coefficients)
+  x_part <- factor(x_disc_bad_idea[((k - 1) * nrow(x) / 10 + 1):(k / 10 * nrow(x))])
+  y_part <- y[((k - 1) * length(y) / 10 + 1):(k / 10 * length(y))]
+  modele_part <- glm(y_part ~ x_part, family = binomial(link = "logit"))
+  liste_coef[[k]] <- (modele_part$coefficients)
 }
 
 estim_coef <- matrix(NA, nrow = nlevels(x_disc_bad_idea), ncol = 10)
 
 for (i in 1:nlevels(x_disc_bad_idea)) {
-     estim_coef[i,] <- unlist(lapply(liste_coef,function(batch) batch[paste0("x_part",levels(factor(x_disc_bad_idea))[i])]))
+  estim_coef[i, ] <- unlist(lapply(liste_coef, function(batch) batch[paste0("x_part", levels(factor(x_disc_bad_idea))[i])]))
 }
 
 stats_coef <- matrix(NA, nrow = nlevels(x_disc_bad_idea), ncol = 3)
 
 for (i in 1:nlevels(x_disc_bad_idea)) {
-     stats_coef[i,1] <- mean(estim_coef[i,], na.rm = TRUE)
-     stats_coef[i,2] <- sd(estim_coef[i,], na.rm = TRUE)
-     stats_coef[i,3] <- sum(is.na(estim_coef[i,]))
+  stats_coef[i, 1] <- mean(estim_coef[i, ], na.rm = TRUE)
+  stats_coef[i, 2] <- sd(estim_coef[i, ], na.rm = TRUE)
+  stats_coef[i, 3] <- sum(is.na(estim_coef[i, ]))
 }
 
-stats_coef <- stats_coef[-1,] 
+stats_coef <- stats_coef[-1, ]
 row.names(stats_coef) <- levels(x_disc_bad_idea)[2:nlevels(x_disc_bad_idea)]
 
-plot (row.names(stats_coef), stats_coef[,1],ylab="Estimated coefficient",xlab="Factor value of x", ylim = c(-1,8))
-segments(as.numeric(row.names(stats_coef)), stats_coef[,1]-stats_coef[,2],as.numeric(row.names(stats_coef)),stats_coef[,1]+stats_coef[,2])
-lines(row.names(stats_coef),rep(0,length(row.names(stats_coef))),col="red")
+plot(row.names(stats_coef), stats_coef[, 1], ylab = "Estimated coefficient", xlab = "Factor value of x", ylim = c(-1, 8))
+segments(as.numeric(row.names(stats_coef)), stats_coef[, 1] - stats_coef[, 2], as.numeric(row.names(stats_coef)), stats_coef[, 1] + stats_coef[, 2])
+lines(row.names(stats_coef), rep(0, length(row.names(stats_coef))), col = "red")
 ```
 
 All intervals crossing $0$ are non-significant! We should group factor values to get a stable estimation and (hopefully) significant coefficient values.
@@ -187,7 +184,7 @@ Second, we assume the conditional independence of $Q_j$ given $X_j$, i.e. knowin
 $$\forall \:x, k\neq j, \; Q_j | x_j \perp Q_k | x_k$$
 The first equation becomes:
 $$\forall \: x,y, \; p(y|x) = \sum_q p(y|q) \prod_{j=1}^d p(q_j|x_j)$$
-As said earlier, we consider only logistic regression models on discretized data $p_\theta(y|e)$. Additionnally, it seems like we have to make further assumptions on the nature of the relationship of $q_j$ to $x_j$. We chose to use polytomous logistic regressions for continuous $X_j$ and contengency tables for qualitative $X_j$. This is an arbitrary choice and future versions will include the possibility of plugging your own model.
+As said earlier, we consider only logistic regression models on discretized data $p_\theta(y|e)$. Additionally, it seems like we have to make further assumptions on the nature of the relationship of $q_j$ to $x_j$. We chose to use polytomous logistic regressions for continuous $X_j$ and contingency tables for qualitative $X_j$. This is an arbitrary choice and future versions will include the possibility of plugging your own model.
 
 The first equation becomes:
 $$\forall \: x,y, \; p(y|x) = \sum_q p_\theta(y|q) \prod_{j=1}^d p_{\alpha_j}(q_j|x_j)$$
@@ -221,7 +218,7 @@ Introducing $\Delta$ as a latent variable as we have done for discretization, we
 
 Again, a simple strategy would consist in estimating $\hat{\theta}_\delta$ for every value of $\Delta$ i.e. $2^{\frac{d(d-1)}{2}}$ models and compare their AIC or BIC values.
 
-As a consequence of this untractable approach, we propose an MCMC procedure to draw $\delta$ from $p(\delta|x,y)$.
+As a consequence of this intractable approach, we propose an MCMC procedure to draw $\delta$ from $p(\delta|x,y)$.
 
 ## An MCMC estimation procedure
 
@@ -249,7 +246,7 @@ This approach would work as a "stand-alone" model selection tool but it can also
 
 ## The `glmdisc` function
 
-The `glmdisc` function implements the algorithm discribed in the previous section. Its parameters are described first, then its internals are briefly discussed. We finally focus on its ouptuts.
+The `glmdisc` function implements the algorithm described in the previous section. Its parameters are described first, then its internals are briefly discussed. We finally focus on its outputs.
 
 ### Parameters
 
@@ -261,16 +258,16 @@ The `criterion` parameters lets the user choose between standard model selection
 
 The `m_start` parameter controls the maximum number of categories of $Q_j$ for $X_j$ continuous. The SEM algorithm will start with random $Q_j$ taking values in $\{1,m_{\text{start}}\}$. For qualitative features $X_j$, $Q_j$ is initialized with as many values as $X_j$ so that `m_start` has no effect.
 
-The `reg_type` parameter controls the model used to fit $Q_j$ to continuous $X_j$. The default behavior (`reg_type=poly`) uses `multinom` from the `nnet` package which is a polytomous logistic regression (see References section). The other `reg_type` value is `polr` from the `MASS` package which is an ordered logistic regression (simpler to estimate but less flexible as it fits way fewer parameters).
+The `reg_type` parameter controls the model used to fit $Q_j$ to continuous $X_j$. The default behavior (`reg_type="poly"`) is a polytomous (multinomial) logistic regression of $Q_j$ on $X_j$, fit by a dedicated penalized Newton solver that is warm-started at each iteration. The other `reg_type` value is `"polr"`, the ordered logistic regression of `polr` from the `MASS` package (simpler to estimate but less flexible as it fits way fewer parameters; it falls back to the polytomous model when it cannot be fit, e.g. with perfectly separated classes).
 
-Empirical studies show that with a reasonably small training dataset ($\leq 100 000$ rows) and a small `m_start` parameter ($\leq 20$), approximately $500$ to $1500$ iterations are largely sufficient to obtain a satisfactory model $p_\theta(y|q)$.
+The SEM chain is slow to merge levels: on simulated data (3000 observations, 5 features, `m_start = 10`) the test Gini obtained with the BIC criterion keeps improving slowly with the number of iterations (0.720 after 50 iterations, 0.731 after 300, 0.740 after 1000 and 0.743 after 3000), so that about $1000$ iterations are needed to get most of the benefit, while a sweep only takes a few tens of milliseconds (see `inst/benchmarks/convergence.R`). The `patience` argument stops the chain when the criterion has not improved for that many iterations.
 
 ### Internals
 
 First, the discretized version $Q$ of $X$ is initialized at random using the user-provided maximum number of values for quantitative values through the `m_start` parameter.
 
 Then we iterate `times`:
-First, the model $p_\theta(y|q)$, where $q$ denotes the current value of $Q$, is adjusted. Then, for each feature $X_j$, the model $p_{\alpha_j}(q|x)$ is adjusted (depending on the type of $X_j$ it can be a polytomous logistic regression or a contengency table). Finally, we draw a new candidate $q_j$ with probability $p_\theta(y|q)p_{\alpha_j}(q_j|x_j)$.
+First, the model $p_\theta(y|q)$, where $q$ denotes the current value of $Q$, is adjusted. Then, for each feature $X_j$, the model $p_{\alpha_j}(q|x)$ is adjusted (depending on the type of $X_j$ it can be a polytomous logistic regression or a contingency table). Finally, we draw a new candidate $q_j$ with probability $p_\theta(y|q)p_{\alpha_j}(q_j|x_j)$.
 
 The performance metric chosen through the `criterion` parameter determines the best candidate $q$.
 
@@ -278,26 +275,30 @@ The performance metric chosen through the `criterion` parameter determines the b
 
 First we simulate a "true" underlying discrete model:
 ```{r, echo=TRUE, results='asis'}
-x = matrix(runif(300), nrow = 100, ncol = 3)
-cuts = seq(0,1,length.out= 4)
-xd = apply(x,2, function(col) as.numeric(cut(col,cuts)))
-theta = t(matrix(c(0,0,0,2,2,2,-2,-2,-2),ncol=3,nrow=3))
-log_odd = rowSums(t(sapply(seq_along(xd[,1]), function(row_id) sapply(seq_along(xd[row_id,]),
-function(element) theta[xd[row_id,element],element]))))
-y = rbinom(100,1,1/(1+exp(-log_odd)))
+x <- matrix(runif(300), nrow = 100, ncol = 3)
+cuts <- seq(0, 1, length.out = 4)
+xd <- apply(x, 2, function(col) as.numeric(cut(col, cuts)))
+theta <- t(matrix(c(0, 0, 0, 2, 2, 2, -2, -2, -2), ncol = 3, nrow = 3))
+log_odd <- rowSums(t(sapply(seq_along(xd[, 1]), function(row_id) {
+  sapply(
+    seq_along(xd[row_id, ]),
+    function(element) theta[xd[row_id, element], element]
+  )
+})))
+y <- rbinom(100, 1, 1 / (1 + exp(-log_odd)))
 ```
 
 The `glmdisc` function will try to "recover" the hidden true discretization `xd` when provided only with `x` and `y`:
 ```{r, echo=TRUE,warning=FALSE, message=FALSE, results='hide',eval=FALSE}
 library(glmdisc)
 set.seed(123)
-discretization <- glmdisc(x,y,iter=50,m_start=5,test=FALSE,validation=FALSE,criterion="aic",interact=FALSE)
+discretization <- glmdisc(x, y, iter = 50, m_start = 5, test = FALSE, validation = FALSE, criterion = "aic", interact = FALSE)
 ```
 
 ```{r, echo=FALSE,warning=FALSE, message=FALSE, results='hide',eval=TRUE}
 library(glmdisc)
 set.seed(1)
-discretization <- glmdisc(x,y,iter=50,m_start=5,test=FALSE,validation=FALSE,criterion="aic",interact=FALSE)
+discretization <- glmdisc(x, y, iter = 50, m_start = 5, test = FALSE, validation = FALSE, criterion = "aic", interact = FALSE)
 ```
 
 For now, we simulated a discrete model without interactions. We can verify that our proposed approach for interaction discovery selects a model without interactions.
@@ -306,57 +307,64 @@ For now, we simulated a discrete model without interactions. We can verify that 
 all_formula <- list()
 
 for (l in 1:10) {
-     set.seed(l)
-     x = matrix(runif(300), nrow = 100, ncol = 3)
-     cuts = seq(0,1,length.out= 4)
-     xd = apply(x,2, function(col) as.numeric(cut(col,cuts)))
-     theta = t(matrix(c(0,0,0,2,2,2,-2,-2,-2),ncol=3,nrow=3))
-     log_odd = rowSums(t(sapply(seq_along(xd[,1]), function(row_id) sapply(seq_along(xd[row_id,]),
-     function(element) theta[xd[row_id,element],element]))))
-     y = rbinom(100,1,1/(1+exp(-log_odd)))
-     
-     discretization <- glmdisc(x,y,iter=50,m_start=5,test=FALSE,validation=FALSE,criterion="aic",interact=TRUE)
-     all_formula[[l]] <- discretization@best.disc$formulaOfBbestestLogisticRegression
+  set.seed(l)
+  x <- matrix(runif(300), nrow = 100, ncol = 3)
+  cuts <- seq(0, 1, length.out = 4)
+  xd <- apply(x, 2, function(col) as.numeric(cut(col, cuts)))
+  theta <- t(matrix(c(0, 0, 0, 2, 2, 2, -2, -2, -2), ncol = 3, nrow = 3))
+  log_odd <- rowSums(t(sapply(seq_along(xd[, 1]), function(row_id) {
+    sapply(
+      seq_along(xd[row_id, ]),
+      function(element) theta[xd[row_id, element], element]
+    )
+  })))
+  y <- rbinom(100, 1, 1 / (1 + exp(-log_odd)))
+
+  discretization <- glmdisc(x, y, iter = 50, m_start = 5, test = FALSE, validation = FALSE, criterion = "aic", interact = TRUE)
+  all_formula[[l]] <- discretization@best.disc$formulaOfBestLogisticRegression
 }
+```
 
-#barplot(table(grepl(":",all_formula)),names.arg=c("No interaction","One interaction"),xlim = 2)
-
+```{r, echo=TRUE}
+# Number of runs (out of 10) in which an interaction was selected
+sum(vapply(all_formula, function(f) grepl(":", paste(deparse(f), collapse = "")), logical(1)))
 ```
 
 Conversely, we can simulate a discrete model with an interaction and report how many times the proposed algorithm detected the right interaction.
 
 ```{r, echo=TRUE,warning=FALSE, message=FALSE, results='hide'}
-
 all_formula <- list()
 
 for (l in 1:10) {
-     set.seed(100+l)
-     x = matrix(runif(3000), nrow = 1000, ncol = 3)
-     cuts = seq(0,1,length.out= 4)
-     xd = apply(x,2, function(col) as.numeric(cut(col,cuts)))
-     theta = t(matrix(c(0,0,0,2,2,2,-2,-2,-2),ncol=3,nrow=3))
-     log_odd = matrix(0,1000,1)
-       for (i in 1:1000) {
-          log_odd[i] = 2*(xd[i,1]==1)+
-               (-2)*(xd[i,1]==2)+
-               2*(xd[i,1]==1)*(xd[i,2]==1)+
-               4*(xd[i,1]==2)*(xd[i,2]==2)+
-               (-2)*(xd[i,2]==1)*(xd[i,3]==2)+
-               (-4)*(xd[i,2]==2)*(xd[i,3]==1)+
-               1*(xd[i,2]==3)*(xd[i,3]==1)+
-               (-1)*(xd[i,1]==1)*(xd[i,3]==3)+
-               3*(xd[i,1]==3)*(xd[i,3]==2)+
-               (-1)*(xd[i,1]==2)*(xd[i,3]==3)
-       }
-     
-     y = rbinom(1000,1,1/(1+exp(-log_odd)))
-     
-     discretization <- glmdisc(x,y,iter=50,m_start=5,test=FALSE,validation=FALSE,criterion="aic",interact=TRUE)
-     all_formula[[l]] <- discretization@best.disc$formulaOfBbestestLogisticRegression
+  set.seed(100 + l)
+  x <- matrix(runif(3000), nrow = 1000, ncol = 3)
+  cuts <- seq(0, 1, length.out = 4)
+  xd <- apply(x, 2, function(col) as.numeric(cut(col, cuts)))
+  theta <- t(matrix(c(0, 0, 0, 2, 2, 2, -2, -2, -2), ncol = 3, nrow = 3))
+  log_odd <- matrix(0, 1000, 1)
+  for (i in 1:1000) {
+    log_odd[i] <- 2 * (xd[i, 1] == 1) +
+      (-2) * (xd[i, 1] == 2) +
+      2 * (xd[i, 1] == 1) * (xd[i, 2] == 1) +
+      4 * (xd[i, 1] == 2) * (xd[i, 2] == 2) +
+      (-2) * (xd[i, 2] == 1) * (xd[i, 3] == 2) +
+      (-4) * (xd[i, 2] == 2) * (xd[i, 3] == 1) +
+      1 * (xd[i, 2] == 3) * (xd[i, 3] == 1) +
+      (-1) * (xd[i, 1] == 1) * (xd[i, 3] == 3) +
+      3 * (xd[i, 1] == 3) * (xd[i, 3] == 2) +
+      (-1) * (xd[i, 1] == 2) * (xd[i, 3] == 3)
+  }
+
+  y <- rbinom(1000, 1, 1 / (1 + exp(-log_odd)))
+
+  discretization <- glmdisc(x, y, iter = 50, m_start = 5, test = FALSE, validation = FALSE, criterion = "aic", interact = TRUE)
+  all_formula[[l]] <- discretization@best.disc$formulaOfBestLogisticRegression
 }
+```
 
-#barplot(table(grepl(":",all_formula)),names.arg=c("No interaction","One interaction"),xlim = 2)
-
+```{r, echo=TRUE}
+# Number of runs (out of 10) in which an interaction was selected
+sum(vapply(all_formula, function(f) grepl(":", paste(deparse(f), collapse = "")), logical(1)))
 ```
 
 ### The `parameters` slot
@@ -369,12 +377,12 @@ discretization@parameters
 
 ### The `best.disc` slot
 
-The `best.disc` slot contains all that is needed to reproduce the best discretization scheme obtained by `glmdisc` function: the first element is the best logistic regression model obtained $p_\theta(y|e)$; the second element is its associated "link" function, i.e. either the `multinom` or `polr` functions fit to each continuous features and the contengency tables fit to each quantitative features.
+The `best.disc` slot contains all that is needed to reproduce the best discretization scheme obtained by `glmdisc` function: the first element is the best logistic regression model obtained $p_\theta(y|e)$; the second element is its associated list of "link" functions, one per feature: the polytomous (or ordered) logistic regression of the quantized feature on each continuous feature and the contingency table for each categorical feature; the third element is the formula of the logistic regression.
 ```{r, echo=TRUE}
 discretization@best.disc[[1]]
 
-# The first link function is:
-discretization@best.disc[[2]][[1]]
+# The first link function (the quantized values it can output, and its type) is:
+discretization@best.disc[[2]][[1]][c("type", "S", "relabel")]
 ```
 
 ### The `performance` slot
@@ -422,8 +430,8 @@ knitr::kable(head(discretization@cont.data))
 To compare the estimated and the true discretization schemes, we can represent them with respect to the input "raw" data `x`:
 <!--```{r, echo=TRUE, out.width='.49\\linewidth', fig.width=3, fig.height=3,fig.show='hold'}-->
 ```{r, echo=FALSE}
-plot(x[,1],xd[,1])
-plot(discretization@cont.data[,1],discretization@disc.data[,1])
+plot(x[, 1], xd[, 1])
+plot(discretization@cont.data[, 1], discretization@disc.data[, 1])
 ```
 
 ## "Classical" methods
@@ -449,7 +457,7 @@ show(discretization)
 
 The `discretize` method allows the user to discretize a new "raw" input set by applying the best discretization scheme found by the `glmdisc` function in a provided `glmdisc` object.
 ```{r, echo=TRUE, results='asis'}
-x_new <- discretize(discretization,x)
+x_new <- discretize(discretization, x)
 ```
 
 ```{r, echo=FALSE, warning=FALSE}
@@ -490,7 +498,7 @@ In the third section, we described two fundamental modelling hypotheses that wer
 
 + A polytomous logistic regression if $X_j$ is continuous;
 
-+ A contengency table if $X_j$ is qualitative.
++ A contingency table if $X_j$ is qualitative.
 
 These hypotheses are "building blocks" that could be changed at the modeller's will: discretization could optimize other models.
 

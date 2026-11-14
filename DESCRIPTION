@@ -1,40 +1,47 @@
 Package: glmdisc
 Type: Package
 Title: Discretization and Grouping for Logistic Regression
-Version: 0.6
-Date: 2020-09-30
-Authors@R: c(person("Adrien", "Ehrhardt", email = "adrien.ehrhardt@centraliens-lille.org",
-                  role = c("aut", "cre")),
-                  person("Vincent", "Vandewalle", email = "vincent.vandewalle@inria.fr",
-                  role = c("aut")),
-                  person("Christophe", "Biernacki", email = "christophe.biernacki@inria.fr",
-                  role = c("ctb")),
-                  person("Philippe", "Heinrich", email = "philippe.heinrich@univ-lille1.fr",
+Version: 0.8.1
+Date: 2026-10-23
+Authors@R: c(person("Adrien", "Ehrhardt", email = "adrien.ehrhardt@polytechnique.edu",
+                  role = c("aut", "cre"), comment = c(ORCID = "0000-0002-4448-3644")),
+             person("Vincent", "Vandewalle", email = "vincent.vandewalle@inria.fr",
+                  role = c("aut"), comment = c(ORCID = "0000-0003-2946-9059")),
+             person("Christophe", "Biernacki", email = "christophe.biernacki@inria.fr",
+                  role = c("ctb"), comment = c(ORCID = "0000-0002-8995-0568")),
+             person("Philippe", "Heinrich", email = "philippe.heinrich@univ-lille1.fr",
                   role = c("ctb")))
-Maintainer: Adrien Ehrhardt <adrien.ehrhardt@centraliens-lille.org>
-Description: A Stochastic-Expectation-Maximization (SEM) algorithm (Celeux et al. (1995) <https://hal.inria.fr/inria-00074164>) associated with a Gibbs sampler which purpose is to learn a constrained representation for logistic regression that is called quantization (Ehrhardt et al. (2019) <arXiv:1903.08920>). Continuous features are discretized and categorical features' values are grouped to produce a better logistic regression model. Pairwise interactions between quantized features are dynamically added to the model through a Metropolis-Hastings algorithm (Hastings, W. K. (1970) <doi:10.1093/biomet/57.1.97>).
+Maintainer: Adrien Ehrhardt <adrien.ehrhardt@polytechnique.edu>
+Description: A Stochastic-Expectation-Maximization (SEM) algorithm (Celeux et al. (1995) <https://inria.hal.science/inria-00074164>) associated with a Gibbs sampler which purpose is to learn a constrained representation for logistic regression that is called quantization (Ehrhardt et al. (2019) <doi:10.48550/arXiv.1903.08920>). Continuous features are discretized and categorical features' values are grouped to produce a better logistic regression model. Pairwise interactions between the discretized and grouped features are dynamically added to the model through a Metropolis-Hastings algorithm (Hastings, W. K. (1970) <doi:10.1093/biomet/57.1.97>).
 License: GPL (>= 2)
 Encoding: UTF-8
-LazyData: true
-Imports: caret (>= 6.0-82), dplyr, magrittr, gam, nnet, RcppNumerical,
-        methods, MASS, graphics, Rcpp (>= 0.12.13)
+Language: en-US
+Config/testthat/edition: 3
+Config/Needs/website: pkgdown
+Imports: gam, graphics, MASS, methods, Rcpp (>= 1.0.7), RcppNumerical,
+        stats
 LinkingTo: Rcpp, RcppEigen, RcppNumerical
-URL: https://adimajo.github.io
+URL: https://adimajo.github.io/glmdisc/,
+        https://github.com/adimajo/glmdisc
 BugReports: https://github.com/adimajo/glmdisc/issues
-RoxygenNote: 7.1.1
-Suggests: knitr, rmarkdown, testthat (>= 2.1.0), covr
+Suggests: covr, DT, knitr, nnet, rmarkdown, testthat (>= 3.0.0)
 VignetteBuilder: knitr
 Collate: 'RcppExports.R' 'allClasses.R' 'cut.dataset.R'
-        'discretize.link.R' 'generic_cutpoints.R'
+        'discretize.link.R' 'features.R' 'generic_cutpoints.R'
         'generic_discretize.R' 'glmdisc.R' 'initialization.R'
-        'method_cutpoints.R' 'method_discretize.R' 'method_plot.R'
-        'method_predict.R' 'methods_disc.R' 'normalizedGini.R'
-        'semDiscretization.R'
+        'link_models.R' 'logit_codes.R' 'method_cutpoints.R'
+        'method_discretize.R' 'method_plot.R' 'method_predict.R'
+        'methods_disc.R' 'normalizedGini.R' 'semDiscretization.R'
+        'sem_engine.R' 'utils.R'
+Config/roxygen2/version: 8.1.1
 NeedsCompilation: yes
-Packaged: 2020-09-30 17:05:22 UTC; adimajo
-Author: Adrien Ehrhardt [aut, cre],
-  Vincent Vandewalle [aut],
-  Christophe Biernacki [ctb],
+Packaged: 2026-10-23 13:28:46 UTC; adrien
+Author: Adrien Ehrhardt [aut, cre] (ORCID:
+    <https://orcid.org/0000-0002-4448-3644>),
+  Vincent Vandewalle [aut] (ORCID:
+    <https://orcid.org/0000-0003-2946-9059>),
+  Christophe Biernacki [ctb] (ORCID:
+    <https://orcid.org/0000-0002-8995-0568>),
   Philippe Heinrich [ctb]
 Repository: CRAN
-Date/Publication: 2020-09-30 21:10:02 UTC
+Date/Publication: 2026-11-14 08:20:15 UTC

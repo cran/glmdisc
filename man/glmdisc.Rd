@@ -2,7 +2,7 @@
 % Please edit documentation in R/semDiscretization.R
 \name{glmdisc}
 \alias{glmdisc}
-\title{Model-based multivariate discretization for logistic regression.}
+\title{Model-based multivariate discretization for logistic regression}
 \usage{
 glmdisc(
   predictors,
@@ -14,7 +14,10 @@ glmdisc(
   iter = 1000,
   m_start = 20,
   reg_type = "poly",
-  proportions = c(0.2, 0.2)
+  proportions = c(0.2, 0.2),
+  verbose = FALSE,
+  fast = FALSE,
+  patience = NULL
 )
 }
 \arguments{
@@ -24,19 +27,34 @@ glmdisc(
 
 \item{interact}{Boolean : True (default) if interaction detection is wanted (Warning: may be very memory/time-consuming).}
 
-\item{validation}{Boolean : True if the algorithm should use predictors to construct a validation set on which to search for the best discretization scheme using the provided criterion (default: TRUE).}
+\item{validation}{Boolean : True if the algorithm should use predictors to construct a validation set on which to search for the best discretization scheme using the provided criterion (default: TRUE). The coefficients of the final logistic regression are then estimated on the training and validation sets together.}
 
 \item{test}{Boolean : True if the algorithm should use predictors to construct a test set on which to calculate the provided criterion using the best discretization scheme (chosen thanks to the provided criterion on either the test set (if true) or the training set (otherwise)) (default: TRUE).}
 
-\item{criterion}{The criterion ('gini','aic','bic') to use to choose the best discretization scheme among the generated ones (default: 'gini'). Nota Bene: it is best to use 'gini' only when test is set to TRUE and 'aic' or 'bic' when it is not. When using 'aic' or 'bic' with a test set, the likelihood is returned as there is no need to penalize for generalization purposes.}
+\item{criterion}{The criterion ('gini','aic','bic') to use to choose the best discretization scheme among the generated ones (default: 'gini'). Note: it is best to use 'gini' only when test is set to TRUE and 'aic' or 'bic' when it is not. When using 'aic' or 'bic' with a test set, the likelihood is returned as there is no need to penalize for generalization purposes.}
 
-\item{iter}{The number of iterations to do in the SEM protocole (default: 1000).}
+\item{iter}{The number of iterations to do in the SEM protocol (default: 1000).}
 
 \item{m_start}{The maximum number of resulting categories for each variable wanted (default: 20).}
 
-\item{reg_type}{The model to use between discretized and continuous features (currently, only multinomial logistic regression ('poly') and ordered logistic regression ('polr') are supported ; default: 'poly'). WARNING: 'poly' requires the \code{mnlogit} package, 'polr' requires the \code{MASS} package.}
+\item{reg_type}{The model linking a continuous feature to its quantized version: multinomial logistic regression ('poly', default; fitted by a dedicated penalized Newton solver) or ordered logistic regression ('polr', \code{\link[MASS]{polr}}; falls back to 'poly' when it cannot be fitted).}
 
-\item{proportions}{The list of the proportions wanted for test and validation set. Not used when both test and validation are false. Only the first is used when there is only one of either test or validation that is set to TRUE. Produces an error when the sum is greater to one. Default: list(0.2,0.2) so that the training set has 0.6 of the input observations.}
+\item{proportions}{The proportions wanted for the test and validation sets, in this order. Not used when both test and validation are false. Only the first is used when there is only one of either test or validation that is set to TRUE. Produces an error when the sum is greater to one. Default: list(0.2,0.2) so that the training set has 0.6 of the input observations.}
+
+\item{verbose}{Print information while fitting (default: FALSE).}
+
+\item{fast}{Deprecated and ignored (sampling is now always vectorized).}
+
+\item{patience}{Optional early stopping: stop when the criterion has not improved for this many consecutive iterations (default: NULL, run all \code{iter} iterations). The SEM chain typically reaches a plateau long before the default \code{iter}; see the vignette.}
+}
+\value{
+An S4 object of class \code{\linkS4class{glmdisc}} with the following slots:
+\itemize{
+  \item \code{parameters}: a list with the arguments used to fit the model (\code{test}, \code{validation}, \code{criterion}, \code{iter}, \code{m_start}, \code{reg_type}, \code{interact}), the type of each feature (\code{types_data}, \code{"numeric"} or \code{"factor"}) and the levels of the factor features;
+  \item \code{best.disc}: a list of three elements describing the best discretization scheme found: \code{bestLogisticRegression}, the \code{\link[stats]{glm}} fitted on the quantized features (and their interactions, if any); \code{bestLinkFunction}, a list with one element per feature that describes how a raw value is assigned to a level (it is used by \code{\link{discretize}} and \code{\link{predict}}); and \code{formulaOfBestLogisticRegression}, the formula of the logistic regression;
+  \item \code{performance}: a list with \code{performance}, the normalized Gini index of the best model on the test set (if \code{test = TRUE}, otherwise on the validation set if \code{validation = TRUE}, otherwise on the training set), and \code{criterionEvolution}, the value of the criterion at each iteration;
+  \item \code{disc.data}: a data frame with the discretized features (levels named \code{"1"}, \code{"2"}, ... and \code{"NA"} for missing values) and the \code{labels} of the observations on which \code{performance} was computed; \code{cont.data}: the same observations with the raw features.
+}
 }
 \description{
 This function discretizes a training set using an SEM-Gibbs based method (see References section).
@@ -45,8 +63,10 @@ Second-order interactions can be searched through the optional \code{interaction
 }
 \details{
 This function finds the most appropriate discretization scheme for logistic regression. When provided with a continuous variable \eqn{X}, it tries to convert it to a categorical variable \eqn{Q} which values uniquely correspond to intervals of the continuous variable \eqn{X}.
-When provided with a categorical variable \eqn{X}, it tries to find the best regroupement of its values and subsequently creates categorical variable \eqn{Q}. The goal is to perform supervised learning with logistic regression so that you have to specify a target variable \eqn{Y} denoted by \code{labels}.
-The ‘‘discretization'' process, i.e. the transformation of \eqn{X} to \eqn{Q} is done so as to achieve the best logistic regression model \eqn{p(y|e;\theta)}. It can be interpreted as a special case feature engineering algorithm.
+When provided with a categorical variable \eqn{X}, it tries to find the best grouping of its values and subsequently creates categorical variable \eqn{Q}. The goal is to perform supervised learning with logistic regression so that you have to specify a target variable \eqn{Y} denoted by \code{labels}.
+The "discretization" process, i.e. the transformation of \eqn{X} to \eqn{Q} is done so as to achieve the best logistic regression model \eqn{p(y|e;\theta)}. It can be interpreted as a special case feature engineering algorithm.
+When \code{interact = TRUE}, the set of pairwise interactions is explored by a Metropolis-Hastings sampler: at each iteration one pair is proposed for addition or removal (with a probability that favors pairs for which a logistic regression on the raw features finds an interaction) and accepted according to the BIC of the logistic regression with and without it.
+The target of this sampler is the BIC approximation of the posterior of the set of interactions, with a Bernoulli prior given by the pairwise screening, and the proposal is corrected so that it is sampled exactly. The sampler of the thesis (BIC not halved, no proposal correction, unclamped prior) can be restored for comparison with \code{options(glmdisc.mh_scale = 1, glmdisc.mh_hastings = FALSE, glmdisc.mh_clamp = 0)}.
 Subsequently, its outputs are: the optimal discretization scheme and the logistic regression model associated with it. We also provide the parameters that were provided to the function and the evolution of the criterion with respect to the algorithm's iterations.
 }
 \examples{
@@ -73,11 +93,10 @@ print(sem_disc)
 \references{
 Celeux, G., Chauveau, D., Diebolt, J. (1995), On Stochastic Versions of the EM Algorithm. [Research Report] RR-2514, INRIA. 1995. <inria-00074164>
 
-
 Agresti, A. (2002) \emph{Categorical Data}. Second edition. Wiley.
 }
 \seealso{
-\code{\link{glm}}, \code{\link{multinom}}, \code{\link{polr}}
+\code{\link[stats]{glm}}, \code{\link[MASS]{polr}}
 }
 \author{
 Adrien Ehrhardt.

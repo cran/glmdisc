@@ -3,25 +3,33 @@
 #include <RcppNumerical.h>
 using namespace Numer;
 
-//' Predicting using a logistic regression fitted with RCpp::fast_LR.
+//' Predicting using a logistic regression fitted with RcppNumerical::fastLR
 //' 
 //' This function returns a numeric vector containing the probability of each observation of being of class 1 given a vector of logistic
-//' regression parameters (usually estimated through RCpp::fast_LR).
+//' regression parameters (usually estimated through RcppNumerical::fastLR).
 //'
 //' @param test A matrix containing test data
 //' @param parameters A vector containing the logistic regression parameters
+//' @return A numeric vector of length \code{nrow(test)}: the probability of class 1 of each row, \eqn{1 / (1 + e^{-x^T \beta})} where \eqn{x} is the row and \eqn{\beta} the \code{parameters}.
+//' @examples
+//' # intercept and one covariate: the probabilities are plogis(c(-2, 0, 2))
+//' predictlogisticRegression(cbind(1, c(-2, 0, 2)), c(0, 1))
 //' @export
 // [[Rcpp::export]]
-Eigen::VectorXd predictlogisticRegression(const Eigen::MatrixXd test,
-                                          const Eigen::VectorXd parameters) {
-     
+Eigen::VectorXd predictlogisticRegression(const Eigen::MatrixXd &test,
+                                          const Eigen::VectorXd &parameters) {
+     if (test.cols() != parameters.size()) {
+          Rcpp::stop("Non-conformable arguments: `test` has %d columns but `parameters` has length %d.",
+                     static_cast<int>(test.cols()), static_cast<int>(parameters.size()));
+     }
+
      const int n = test.rows();
      Eigen::VectorXd prob(n);
-     Eigen::VectorXd xbeta = test*parameters;
-     
-     for(int i = 0; i < n; i++)
+     Eigen::VectorXd xbeta = test * parameters;
+
+     for (int i = 0; i < n; i++)
           prob[i] = R::log1pexp(xbeta[i]);
-     
+
      prob = (xbeta - prob).array().exp();
      return prob;
 }

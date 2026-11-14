@@ -1,12 +1,13 @@
 #' @include allClasses.R
 NULL
 
-#' Obtaining the cutpoints and / or regroupments of a discretization.
+#' Obtaining the cutpoints and / or groupings of a discretization.
 #' @name cutpoints
 #' @rdname cutpoints-method
 #' @aliases cutpoints,glmdisc-method
 #' @param glmdisc The trained glmdisc S4 object.
 #' @description This defines the method to provide the cutpoints of a trained glmdisc.
+#' @return A named list with one element per feature. For a numeric feature, a numeric vector with the cutpoints between consecutive levels of the discretization (empty if the feature has a single level). For a factor, a named integer vector that gives, for each level of the factor, the number of the group it was assigned to.
 #' @examples
 #' # Simulation of a discretized logit model
 #' set.seed(1)
@@ -31,7 +32,13 @@ methods::setMethod("cutpoints", methods::signature(object = "glmdisc"), function
   cutpoints <- list()
 
   for (j in which(object@parameters$types_data == "factor")) {
-    cutpoints[[j]] <- apply(prop.table(object@best.disc$bestLinkFunction[[j]], 2), 2, which.max)
+    link <- object@best.disc$bestLinkFunction[[j]]
+    groups <- if (link$type == "constant") {
+      rep(1L, length(object@parameters$factor_levels[[j]]))
+    } else {
+      as.integer(link$relabel[as.character(link_map(link, seq_along(object@parameters$factor_levels[[j]])))])
+    }
+    cutpoints[[j]] <- stats::setNames(groups, object@parameters$factor_levels[[j]])
   }
 
   for (j in which(object@parameters$types_data == "numeric")) {

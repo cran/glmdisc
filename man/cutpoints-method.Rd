@@ -4,7 +4,7 @@
 \name{cutpoints}
 \alias{cutpoints}
 \alias{cutpoints,glmdisc-method}
-\title{Obtaining the cutpoints and / or regroupments of a discretization.}
+\title{Obtaining the cutpoints and / or groupings of a discretization}
 \usage{
 cutpoints(object)
 
@@ -14,6 +14,9 @@ cutpoints(object)
 \item{object}{generic glmdisc object}
 
 \item{glmdisc}{The trained glmdisc S4 object.}
+}
+\value{
+A named list with one element per feature. For a numeric feature, a numeric vector with the cutpoints between consecutive levels of the discretization (empty if the feature has a single level). For a factor, a named integer vector that gives, for each level of the factor, the number of the group it was assigned to.
 }
 \description{
 This defines the generic method "cutpoints" which will provide the cutpoints of a discretization scheme of S4 class \code{\link{glmdisc}}.

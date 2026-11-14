@@ -3,7 +3,7 @@
 \name{discretize}
 \alias{discretize}
 \alias{discretize,glmdisc-method}
-\title{Prediction on a raw test set of the best logistic regression model on discretized / grouped data.}
+\title{Prediction on a raw test set of the best logistic regression model on discretized / grouped data}
 \usage{
 discretize(object, data)
 
@@ -13,6 +13,9 @@ discretize(object, data)
 \item{object}{glmdisc object}
 
 \item{data}{the data to discretize according to the provided discretization scheme}
+}
+\value{
+A character matrix with one row per observation of \code{data} and one column per feature: the name of the level (\code{"1"}, \code{"2"}, ...; \code{"NA"} for a missing value) that each value was assigned to.
 }
 \description{
 This function discretizes a user-provided test dataset given a discretization scheme provided by an S4 \code{\link{glmdisc}} object.

@@ -3,20 +3,23 @@
 \docType{methods}
 \name{plot}
 \alias{plot}
-\alias{plot.glmdisc}
-\alias{plot,glmdisc,ANY-method}
 \alias{plot,glmdisc,missing-method}
-\title{Plots for the discretized / grouped data.}
+\title{Plots for the discretized / grouped data}
 \usage{
-plot.glmdisc(x)
-
-\S4method{plot}{glmdisc,missing}(x)
+\S4method{plot}{glmdisc,missing}(x, y, ...)
 }
 \arguments{
 \item{x}{The S4 \code{\link{glmdisc}} object to plot.}
+
+\item{y}{Not used.}
+
+\item{...}{Not used.}
+}
+\value{
+No return value (\code{NULL}, invisibly), called for its side effects: it draws the ROC curve of the model, the risk of each level of every discretized feature, and, for numeric features, a GAM fit of the feature with its discretization. For factor features it also prints the table of the groups of levels.
 }
 \description{
-This defines the \code{\link{plot}} method which will plot some useful graphs for the discretization scheme of S4 class \code{\link{glmdisc}}
+This defines the \code{\link[graphics]{plot}} method which will plot some useful graphs for the discretization scheme of S4 class \code{\link{glmdisc}}
 }
 \examples{
 # Simulation of a discretized logit model
